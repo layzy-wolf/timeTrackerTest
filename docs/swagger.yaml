@@ -1,0 +1,293 @@
+definitions:
+  endpoints.BoolResponse:
+    properties:
+      error: {}
+      success:
+        type: boolean
+    type: object
+  endpoints.People:
+    properties:
+      address:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      passportNumber:
+        type: string
+      passportSerie:
+        type: string
+      patronymic:
+        type: string
+      surname:
+        type: string
+    type: object
+  endpoints.PeopleCreateRequest:
+    properties:
+      passportNumber:
+        type: string
+    type: object
+  endpoints.PeopleCreateResponse:
+    properties:
+      error: {}
+      people:
+        type: integer
+    type: object
+  endpoints.PeopleReadRequest:
+    properties:
+      filter:
+        additionalProperties:
+          type: string
+        type: object
+      page:
+        type: integer
+    type: object
+  endpoints.PeopleReadResponse:
+    properties:
+      error: {}
+      people:
+        items:
+          $ref: '#/definitions/endpoints.People'
+        type: array
+    type: object
+  endpoints.PeopleUpdateRequest:
+    properties:
+      people:
+        type: integer
+      update:
+        additionalProperties:
+          type: string
+        type: object
+    type: object
+  endpoints.Task:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      people_id:
+        type: integer
+      task_end:
+        type: string
+      task_interval:
+        type: string
+      task_start:
+        type: string
+    type: object
+  endpoints.TaskBeginRequest:
+    properties:
+      people:
+        type: integer
+      task:
+        type: string
+    type: object
+  endpoints.TaskBeginResponse:
+    properties:
+      error: {}
+      task:
+        type: integer
+    type: object
+  endpoints.TaskFinishRequest:
+    properties:
+      task:
+        type: integer
+    type: object
+  endpoints.TaskGetRequest:
+    properties:
+      people:
+        type: integer
+      period_end:
+        type: string
+      period_start:
+        type: string
+    type: object
+  endpoints.TaskGetResponse:
+    properties:
+      error: {}
+      tasks:
+        items:
+          $ref: '#/definitions/endpoints.Task'
+        type: array
+    type: object
+info:
+  contact:
+    email: nikita.zatula@mail.ru
+    name: Заула Никита
+    url: https://hh.ru/resume/2859ad12ff0d463d060039ed1f7a4352466859
+  description: Сервис тайм-трекер
+  title: Тестовое задание Effective Mobile
+  version: "1.0"
+paths:
+  /people:
+    delete:
+      consumes:
+      - application/json
+      description: delete user by his id
+      parameters:
+      - description: id
+        in: body
+        name: Id
+        required: true
+        schema:
+          $ref: '#/definitions/endpoints.PeopleUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok, error
+          schema:
+            $ref: '#/definitions/endpoints.BoolResponse'
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: delete user
+      tags:
+      - people
+    get:
+      consumes:
+      - application/json
+      description: returns all users, allows filters and pagination
+      parameters:
+      - description: filter, page
+        in: body
+        name: Page
+        required: true
+        schema:
+          $ref: '#/definitions/endpoints.PeopleReadRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: users, error
+          schema:
+            $ref: '#/definitions/endpoints.PeopleReadResponse'
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: get users
+      tags:
+      - people
+    post:
+      consumes:
+      - application/json
+      description: get passport serie and number and add it to db
+      parameters:
+      - description: PassportNumber
+        in: body
+        name: passportNumber
+        required: true
+        schema:
+          $ref: '#/definitions/endpoints.PeopleCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: id, error
+          schema:
+            $ref: '#/definitions/endpoints.PeopleCreateResponse'
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Create new user
+      tags:
+      - people
+    put:
+      consumes:
+      - application/json
+      description: update user by his id
+      parameters:
+      - description: id, update
+        in: body
+        name: Update
+        required: true
+        schema:
+          $ref: '#/definitions/endpoints.PeopleUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok, error
+          schema:
+            $ref: '#/definitions/endpoints.BoolResponse'
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: update user
+      tags:
+      - people
+  /task:
+    get:
+      consumes:
+      - application/json
+      description: get tasks between dates and orders by their interval
+      parameters:
+      - description: get request
+        in: body
+        name: Params
+        required: true
+        schema:
+          $ref: '#/definitions/endpoints.TaskGetRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Tasks, error
+          schema:
+            $ref: '#/definitions/endpoints.TaskGetResponse'
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: get tasks
+      tags:
+      - task
+  /task/end:
+    post:
+      consumes:
+      - application/json
+      description: finish task by task id
+      parameters:
+      - description: task_id
+        in: body
+        name: Json
+        required: true
+        schema:
+          $ref: '#/definitions/endpoints.TaskFinishRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok, error
+          schema:
+            $ref: '#/definitions/endpoints.BoolResponse'
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Finish task
+      tags:
+      - task
+  /task/start:
+    post:
+      consumes:
+      - application/json
+      description: begin task by user id
+      parameters:
+      - description: user_id, task title
+        in: body
+        name: Json
+        required: true
+        schema:
+          $ref: '#/definitions/endpoints.TaskBeginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: id, error
+          schema:
+            $ref: '#/definitions/endpoints.TaskBeginResponse'
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Begin task
+      tags:
+      - task
+swagger: "2.0"
